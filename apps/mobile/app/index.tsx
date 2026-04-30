@@ -1,22 +1,52 @@
 // ============================================================
-// Sunroom — Index (Entry Point)
+// Sunroom — Auth Router (Index)
 // ============================================================
-// Temporary landing screen. In Phase 1, this will redirect
-// to (auth)/login, (senior)/home, or (family)/home based on
-// the user's auth state and role.
+// This is the entry point that decides where to send the user:
+// - Not logged in → (auth)/login
+// - Logged in, no family → (auth)/onboard
+// - Logged in, role=senior → (senior)
+// - Logged in, role=admin|member → (family)
 // ============================================================
 
-import { View, Text, StyleSheet } from 'react-native';
-import { colors, typography, spacing } from '@sunroom/ui';
+import { useEffect } from 'react';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useAuth } from '../lib/auth-context';
+import { colors } from '@sunroom/ui';
 
-export default function IndexScreen() {
+export default function AuthRouter() {
+  const router = useRouter();
+  const { isLoading, user, role, hasFamily } = useAuth();
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    if (!user) {
+      // Not authenticated → login screen
+      router.replace('/(auth)/login');
+      return;
+    }
+
+    if (!hasFamily) {
+      // Authenticated but no family → onboarding
+      router.replace('/(auth)/onboard');
+      return;
+    }
+
+    if (role === 'senior') {
+      // Senior users → walled garden
+      router.replace('/(senior)');
+      return;
+    }
+
+    // Admin or member → family dashboard
+    router.replace('/(family)');
+  }, [isLoading, user, role, hasFamily, router]);
+
+  // Show a loading spinner while determining auth state
   return (
     <View style={styles.container}>
-      <Text style={styles.emoji}>🌞</Text>
-      <Text style={styles.title}>Sunroom</Text>
-      <Text style={styles.subtitle}>
-        Bringing families closer, effortlessly.
-      </Text>
+      <ActivityIndicator size="large" color={colors.senior.accent} />
     </View>
   );
 }
@@ -27,22 +57,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.senior.background,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: spacing.xl,
-  },
-  emoji: {
-    fontSize: 80,
-    marginBottom: spacing.lg,
-  },
-  title: {
-    ...typography.senior.clock,
-    color: colors.senior.text,
-    fontFamily: typography.fontFamily.display,
-    marginBottom: spacing.sm,
-  },
-  subtitle: {
-    ...typography.family.h3,
-    color: colors.senior.textSecondary,
-    fontFamily: typography.fontFamily.primary,
-    textAlign: 'center',
   },
 });

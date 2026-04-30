@@ -11,7 +11,7 @@ export interface Family {
   created_at: string;
 }
 
-export interface Profile {
+export interface AppUser {
   id: string;
   display_name: string;
   avatar_url: string | null;
@@ -21,11 +21,12 @@ export interface Profile {
 export type FamilyRole = 'admin' | 'member' | 'senior';
 
 export interface FamilyMember {
+  id: string;
   family_id: string;
   user_id: string;
   role: FamilyRole;
   is_trusted_caller: boolean;
-  joined_at: string;
+  created_at: string;
 }
 
 export type DeviceStatus = 'pending' | 'active' | 'offline';
@@ -47,7 +48,7 @@ export interface DeviceTelemetry {
   battery_level: number;
   wifi_strength: number;
   status: string;
-  reported_at: string;
+  last_seen: string;
 }
 
 export type CallMode = 'regular' | 'auto_answer';
@@ -66,14 +67,19 @@ export interface CallLog {
 
 // ----- API / Edge Function Payloads -----
 
-export interface GenerateVideoTokenRequest {
+export interface CreateDailyRoomRequest {
   room_name: string;
-  participant_name: string;
+  caller_id: string;
+  call_mode: CallMode;
 }
 
-export interface GenerateVideoTokenResponse {
+export interface CreateDailyRoomResponse {
+  /** Daily.co meeting token for the participant */
   token: string;
-  ws_url: string;
+  /** The Daily room URL to join */
+  room_url: string;
+  /** The room name */
+  room_name: string;
 }
 
 export interface SendCallNotificationRequest {

@@ -22,4 +22,5 @@ enable_signup = true
 enable_confirmations = false
 
 [functions]
-verify_jwt = true
+[functions.verify_jwt]
+enabled = true

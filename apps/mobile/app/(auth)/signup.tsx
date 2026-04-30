@@ -1,5 +1,5 @@
 // ============================================================
-// Sunroom — Login Screen
+// Sunroom — Sign Up Screen
 // ============================================================
 
 import { useState } from 'react';
@@ -18,26 +18,33 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../../lib/auth-context';
 import { colors, typography, spacing, radii } from '@sunroom/ui';
 
-export default function LoginScreen() {
+export default function SignUpScreen() {
   const router = useRouter();
-  const { signIn } = useAuth();
+  const { signUp } = useAuth();
+  const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
-      showAlert('Missing fields', 'Please enter your email and password.');
+  const handleSignUp = async () => {
+    if (!displayName.trim() || !email.trim() || !password.trim()) {
+      showAlert('Missing fields', 'Please fill in all fields.');
+      return;
+    }
+    if (password.length < 6) {
+      showAlert('Weak password', 'Password must be at least 6 characters.');
       return;
     }
 
     setLoading(true);
     try {
-      await signIn(email.trim(), password);
-      // Auth state change will trigger router redirect via index.tsx
+      await signUp(email.trim(), password, displayName.trim());
+      // After signup, user will be redirected to onboarding (create/join family)
       router.replace('/');
     } catch (err: any) {
-      showAlert('Sign in failed', err.message || 'Please check your credentials.');
+      console.error('Signup error:', err);
+      const msg = err?.message || err?.error_description || err?.msg || JSON.stringify(err) || 'Something went wrong.';
+      showAlert('Sign up failed', msg);
     } finally {
       setLoading(false);
     }
@@ -51,11 +58,25 @@ export default function LoginScreen() {
       <View style={styles.inner}>
         {/* Header */}
         <Text style={styles.emoji}>🌞</Text>
-        <Text style={styles.title}>Welcome back</Text>
-        <Text style={styles.subtitle}>Sign in to Sunroom</Text>
+        <Text style={styles.title}>Create account</Text>
+        <Text style={styles.subtitle}>Join your family on Sunroom</Text>
 
         {/* Form */}
         <View style={styles.form}>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Your name</Text>
+            <TextInput
+              style={styles.input}
+              value={displayName}
+              onChangeText={setDisplayName}
+              placeholder="e.g. Maddie"
+              placeholderTextColor={colors.family.textSecondary}
+              autoCapitalize="words"
+              textContentType="name"
+              autoComplete="name"
+            />
+          </View>
+
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Email</Text>
             <TextInput
@@ -77,36 +98,36 @@ export default function LoginScreen() {
               style={styles.input}
               value={password}
               onChangeText={setPassword}
-              placeholder="••••••••"
+              placeholder="6+ characters"
               placeholderTextColor={colors.family.textSecondary}
               secureTextEntry
-              textContentType="password"
-              autoComplete="password"
+              textContentType="newPassword"
+              autoComplete="new-password"
             />
           </View>
 
           <TouchableOpacity
             style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleLogin}
+            onPress={handleSignUp}
             disabled={loading}
             activeOpacity={0.8}
           >
             {loading ? (
               <ActivityIndicator color={colors.white} />
             ) : (
-              <Text style={styles.buttonText}>Sign In</Text>
+              <Text style={styles.buttonText}>Create Account</Text>
             )}
           </TouchableOpacity>
         </View>
 
-        {/* Sign up link */}
+        {/* Login link */}
         <TouchableOpacity
-          onPress={() => router.push('/(auth)/signup')}
+          onPress={() => router.back()}
           style={styles.linkContainer}
         >
           <Text style={styles.linkText}>
-            Don't have an account?{' '}
-            <Text style={styles.linkAccent}>Sign up</Text>
+            Already have an account?{' '}
+            <Text style={styles.linkAccent}>Sign in</Text>
           </Text>
         </TouchableOpacity>
       </View>

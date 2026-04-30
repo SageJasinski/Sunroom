@@ -29,7 +29,7 @@ export interface Database {
           created_at?: string;
         };
       };
-      profiles: {
+      users: {
         Row: {
           id: string;
           display_name: string;
@@ -51,25 +51,28 @@ export interface Database {
       };
       family_members: {
         Row: {
+          id: string;
           family_id: string;
           user_id: string;
           role: 'admin' | 'member' | 'senior';
           is_trusted_caller: boolean;
-          joined_at: string;
+          created_at: string;
         };
         Insert: {
+          id?: string;
           family_id: string;
           user_id: string;
           role: 'admin' | 'member' | 'senior';
           is_trusted_caller?: boolean;
-          joined_at?: string;
+          created_at?: string;
         };
         Update: {
+          id?: string;
           family_id?: string;
           user_id?: string;
           role?: 'admin' | 'member' | 'senior';
           is_trusted_caller?: boolean;
-          joined_at?: string;
+          created_at?: string;
         };
       };
       devices: {
@@ -109,7 +112,7 @@ export interface Database {
           battery_level: number;
           wifi_strength: number;
           status: string;
-          reported_at: string;
+          last_seen: string;
         };
         Insert: {
           id?: string;
@@ -118,7 +121,7 @@ export interface Database {
           battery_level: number;
           wifi_strength: number;
           status?: string;
-          reported_at?: string;
+          last_seen?: string;
         };
         Update: {
           id?: string;
@@ -127,7 +130,7 @@ export interface Database {
           battery_level?: number;
           wifi_strength?: number;
           status?: string;
-          reported_at?: string;
+          last_seen?: string;
         };
       };
       call_logs: {
